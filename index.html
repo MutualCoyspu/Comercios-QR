@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Datos de Pago</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins','Segoe UI', system-ui, sans-serif; color: #6B635B;}
+        body { background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .card { background: #dcefa4; width: 100%; max-width: 450px; padding: 25px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; }
+        h1 { font-size: 40px; margin-bottom: 5px; font-weight: 700;}
+        .subtitle { color: #54595F; font-size: 14px; margin-bottom: 25px; }
+        
+        /* Modificado para usar Flexbox */
+        .data-box { 
+            background: #f8fafc; 
+            border: 3px solid #6B635B; 
+            border-radius: 12px; 
+            padding: 15px; 
+            margin-bottom: 15px; 
+            text-align: left; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            gap: 15px; /* Espacio mínimo garantizado entre texto y botón */
+        }
+        
+        /* Nuevo contenedor para agrupar los textos y permitir que se ajusten */
+        .info-container {
+            flex: 1; /* Toma todo el espacio disponible */
+            min-width: 0; /* Crucial para que el word-break funcione dentro de flexbox */
+        }
+
+        .label { font-size: 12px; color: #64748b; font-weight: bold; text-transform: uppercase; margin-bottom: 4px; }
+        
+        /* Se eliminó el padding-right porque Flexbox ya gestiona el espacio */
+        .value { font-size: 16px; color: #1e293b; font-weight: 600; word-break: break-all; }
+        
+        /* Se eliminó el position absolute y se agregó flex-shrink: 0 */
+        .btn-copy { 
+            flex-shrink: 0; /* Evita que el botón se encoja si el texto es muy largo */
+            background: #A8D42E; 
+            color: #6B635B; 
+            border: none; 
+            padding: 12px 24px; 
+            border-radius: 30px; 
+            font-size: 12px; 
+            cursor: pointer; 
+            transition: background 0.2s; 
+            font-weight: 700; 
+        }
+        .btn-copy:active { background: #153654; color: white; }
+        
+        .toast { display: none; background: #22c55e; color: white; padding: 10px 20px; border-radius: 8px; position: fixed; bottom: 20px; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .footer-text {color: #54595F; font-size: 14px;}
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1 id="comercio-name">Cargando...</h1>
+    <p class="subtitle">Datos de transferencia bancaria / virtual</p>
+
+    <div class="data-box">
+        <div class="info-container">
+            <div class="label">Alias</div>
+            <div class="value" id="alias-text">...</div>
+        </div>
+        <button class="btn-copy" onclick="copiarDato('alias-text')">Copiar</button>
+    </div>
+
+    <div class="data-box">
+        <div class="info-container">
+            <div class="label">CVU / CBU</div>
+            <div class="value" id="cvu-text">...</div>
+        </div>
+        <button class="btn-copy" onclick="copiarDato('cvu-text')">Copiar</button>
+    </div>
+
+    <p class="footer-text">Recuerde enviar el comprobante luego de realizar la transferencia!!</p>
+</div>
+
+<div class="toast" id="toast-msg">¡Copiado al portapapeles!</div>
+
+<script>
+    // 1. Capturar los datos dinámicos desde la URL (?comercio=Nombre&alias=tito&cvu=123)
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    document.getElementById('comercio-name').innerText = urlParams.get('comercio') || 'Comercio';
+    // Colocamos textos largos por defecto para que puedas probar cómo se ve
+    document.getElementById('alias-text').innerText = urlParams.get('alias') || 'Alias...';
+    document.getElementById('cvu-text').innerText = urlParams.get('cvu') || 'CVU...';
+
+    // 2. Función mejorada para copiar al portapapeles (compatible con iframes)
+    function copiarDato(idElemento) {
+        const texto = document.getElementById(idElemento).innerText;
+        
+        // Crear un elemento input temporal para ejecutar el comando de copiado clásico
+        const tempInput = document.createElement('input');
+        tempInput.value = texto;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        tempInput.setSelectionRange(0, 99999); // Para móviles
+        
+        try {
+            document.execCommand('copy');
+            const toast = document.getElementById('toast-msg');
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 2000);
+        } catch (err) {
+            console.error('Error al copiar: ', err);
+        }
+        
+        // Limpiar el elemento temporal
+        document.body.removeChild(tempInput);
+    }
+</script>
+</body>
+</html>
